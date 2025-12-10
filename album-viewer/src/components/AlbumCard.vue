@@ -21,20 +21,46 @@
     </div>
     
     <div class="album-actions">
-      <button class="btn btn-primary">Add to Cart</button>
+      <button 
+        class="btn btn-primary"
+        @click="handleAddToCart"
+        :disabled="addingToCart"
+      >
+        {{ addingToCart ? 'Added!' : 'Add to Cart' }}
+      </button>
       <button class="btn btn-secondary">Preview</button>
+    </div>
+    
+    <div v-if="cart.isInCart(album.id)" class="in-cart-status">
+      In cart ×{{ cart.getQuantity(album.id) }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useCart } from '../composables/useCart'
 import type { Album } from '../types/album'
 
 interface Props {
   album: Album
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const cart = useCart()
+const addingToCart = ref<boolean>(false)
+
+const FEEDBACK_TIMEOUT_MS = 1000
+
+const handleAddToCart = (): void => {
+  cart.addToCart(props.album)
+  addingToCart.value = true
+  
+  setTimeout(() => {
+    addingToCart.value = false
+  }, FEEDBACK_TIMEOUT_MS)
+}
 
 const handleImageError = (event: Event): void => {
   const target = event.target as HTMLImageElement
@@ -167,6 +193,12 @@ const handleImageError = (event: Event): void => {
   transform: translateY(-2px);
 }
 
+.btn-primary:disabled {
+  background: #4caf50;
+  cursor: default;
+  transform: none;
+}
+
 .btn-secondary {
   background: transparent;
   color: #667eea;
@@ -177,6 +209,17 @@ const handleImageError = (event: Event): void => {
   background: #667eea;
   color: white;
   transform: translateY(-2px);
+}
+
+.in-cart-status {
+  padding: 0.5rem 1.5rem;
+  text-align: center;
+  background: #4caf50;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
 }
 
 @media (max-width: 768px) {
