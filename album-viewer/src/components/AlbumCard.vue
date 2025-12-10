@@ -51,13 +51,15 @@ const props = defineProps<Props>()
 const cart = useCart()
 const addingToCart = ref<boolean>(false)
 
+const FEEDBACK_TIMEOUT_MS = 1000
+
 const handleAddToCart = (): void => {
   cart.addToCart(props.album)
   addingToCart.value = true
   
   setTimeout(() => {
     addingToCart.value = false
-  }, 1000)
+  }, FEEDBACK_TIMEOUT_MS)
 }
 
 const handleImageError = (event: Event): void => {

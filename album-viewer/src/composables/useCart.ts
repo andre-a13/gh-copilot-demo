@@ -18,8 +18,22 @@ const loadCart = (): void => {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const parsed = JSON.parse(stored)
-      if (Array.isArray(parsed)) {
+      // Validate structure
+      if (Array.isArray(parsed) && parsed.every(item => 
+        item && 
+        typeof item.id === 'number' && 
+        item.album && 
+        typeof item.album.id === 'number' &&
+        typeof item.album.title === 'string' &&
+        typeof item.album.artist === 'string' &&
+        typeof item.album.price === 'number' &&
+        typeof item.quantity === 'number' &&
+        item.quantity > 0
+      )) {
         items.value = parsed
+      } else {
+        console.warn('Invalid cart data structure in localStorage, resetting cart')
+        items.value = []
       }
     }
   } catch (err) {
@@ -50,6 +64,12 @@ export const useCart = () => {
   }
 
   const addToCart = (album: Album, qty: number = 1): void => {
+    // Validate quantity is a positive integer
+    if (qty <= 0 || !Number.isInteger(qty)) {
+      console.warn('Invalid quantity provided to addToCart:', qty)
+      return
+    }
+    
     const existingItem = items.value.find(item => item.album.id === album.id)
     
     if (existingItem) {

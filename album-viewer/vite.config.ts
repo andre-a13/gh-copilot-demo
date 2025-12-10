@@ -9,6 +9,9 @@ export default defineConfig({
       '@': resolve(__dirname, 'src')
     }
   },
+  test: {
+    exclude: ['node_modules', 'dist', 'e2e']
+  },
   server: {
     port: 3001,
     proxy: {
